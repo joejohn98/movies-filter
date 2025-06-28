@@ -1,11 +1,12 @@
 
 import './App.css'
+import MoviesList from './MoviesList'
 
 function App() {
 
   return (
     <>
-      
+      <MoviesList />
     </>
   )
 }
