@@ -4,6 +4,7 @@ import { dummyFetch, type moviesData } from "./data/dummyFetch";
 const MoviesList: React.FC = () => {
   const [movies, setMovies] = useState<moviesData[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,9 +36,16 @@ const MoviesList: React.FC = () => {
     fetchMovies();
   }, []);
 
-  const filteredMovies = selectedYear
-    ? movies.filter((movie) => movie.year === selectedYear)
-    : movies;
+    const filteredMovies = movies.filter((movie) => {
+    const matchesYear = selectedYear ? movie.year === selectedYear : true;
+    const matchesRating = selectedRating ? movie.rating === selectedRating : true;
+    return matchesYear && matchesRating;
+    });
+
+    const handleSelectedRating = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const rating = e.target.value;
+        setSelectedRating(rating ? Number(rating) : null);
+    }
 
   const handleSelectedYear = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const year = e.target.value;
@@ -73,8 +81,8 @@ const MoviesList: React.FC = () => {
       <div>
         <label style={styles.label}>Filter by Rating:</label>
         <select
-          value={""}
-          onChange={(e) => console.log(e.target.value)}
+          value={selectedRating !== null ? selectedRating : ""}
+          onChange={(e) => handleSelectedRating(e)}
           style={styles.select}
         >
           <option value="">All</option>
@@ -85,6 +93,16 @@ const MoviesList: React.FC = () => {
           ))}
         </select>
       </div>
+      <ul>
+        {filteredMovies.map((movie, index) => (
+          <li key={index} style={styles.listItem}>
+            <p><strong>{movie.title}</strong> ({movie.year}) - Rating: {movie.rating}</p>
+          </li>
+        ))}
+        {filteredMovies.length === 0 && (
+          <p>No movies found for the selected filters.</p>
+        )}
+      </ul>
     </div>
   );
 };
@@ -119,6 +137,11 @@ const styles = {
     border: "1px solid #ccc",
     fontSize: "16px",
   },
+    listItem: {
+        padding: "10px",
+        borderBottom: "1px solid #ddd",
+       listStyleType: "none",
+    },
 };
 
 export default MoviesList;
